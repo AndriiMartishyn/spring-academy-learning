@@ -5,11 +5,10 @@ import com.martishyn.familycashcard.repository.CashCardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.Optional;
 
 @RestController
@@ -28,5 +27,16 @@ public class CashCardController {
             return ResponseEntity.ok(foundCashCard.get());
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @PostMapping
+    public ResponseEntity<?> createCashCard(@RequestBody CashCard cashCard, UriComponentsBuilder uriComponentsBuilder){
+        CashCard savedEntity = cashCardRepository.save(cashCard);
+        URI locationOfNewCard = uriComponentsBuilder
+                .path("/cashcards/{id}")
+                .buildAndExpand(savedEntity.getId())
+                .toUri();
+        return ResponseEntity.created(locationOfNewCard).build();
+
     }
 }
