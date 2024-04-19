@@ -24,9 +24,10 @@ public class CashCardJsonTest {
 
     @BeforeEach
     void setUp() {
-        cashCards = Arrays.array(new CashCard(99L, 123.45),
-                new CashCard(100L, 1.5),
-                new CashCard(101L, 150.00));
+        cashCard.setOwner(null);
+        cashCards = Arrays.array(new CashCard(99L, 123.45, null),
+                new CashCard(100L, 1.5, null),
+                new CashCard(101L, 150.00, null));
     }
 
     @Test

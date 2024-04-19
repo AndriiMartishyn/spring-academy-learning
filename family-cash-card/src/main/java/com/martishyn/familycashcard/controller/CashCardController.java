@@ -2,6 +2,7 @@ package com.martishyn.familycashcard.controller;
 
 import com.martishyn.familycashcard.model.CashCard;
 import com.martishyn.familycashcard.repository.CashCardRepository;
+import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,8 +28,8 @@ public class CashCardController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getCashCardById(@PathVariable Long id) {
-        Optional<CashCard> foundCashCard = cashCardRepository.findById(id);
+    public ResponseEntity<?> getCashCardById(@PathVariable Long id, Principal principal) {
+        Optional<CashCard> foundCashCard = Optional.ofNullable(cashCardRepository.findByIdAndOwner(id, principal.getName()));
         if (foundCashCard.isPresent()) {
             return ResponseEntity.ok(foundCashCard.get());
         }
@@ -35,8 +37,9 @@ public class CashCardController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CashCard>> findAll(Pageable pageable){
-        Page<CashCard> page = cashCardRepository.findAll(
+    public ResponseEntity<List<CashCard>> findAll(Pageable pageable, Principal principal){
+        Page<CashCard> page = cashCardRepository.findByOwner(
+                principal.getName(),
                 PageRequest.of(
                         pageable.getPageNumber(),
                         pageable.getPageSize(),
@@ -46,7 +49,10 @@ public class CashCardController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createCashCard(@RequestBody CashCard cashCard, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<?> createCashCard(@RequestBody CashCard cashCard,
+                                            UriComponentsBuilder uriComponentsBuilder,
+                                            Principal principal) {
+        cashCard.setOwner(principal.getName());
         CashCard savedEntity = cashCardRepository.save(cashCard);
         URI locationOfNewCard = uriComponentsBuilder
                 .path("/cashcards/{id}")
