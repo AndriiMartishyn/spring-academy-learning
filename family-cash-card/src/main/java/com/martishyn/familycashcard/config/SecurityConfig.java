@@ -40,11 +40,11 @@ public class SecurityConfig {
                 .password(passwordEncoder.encode("abc321"))
                 .roles("NO-CARD")
                 .build();
-//        UserDetails kumar = users.username("kumar")
-//                .password(passwordEncoder.encode("abc321"))
-//                .roles("CARD-OWNER")
-//                .build();
-        return new InMemoryUserDetailsManager(sarah, hankNoCard);
+        UserDetails kumar = users.username("kumar")
+                .password(passwordEncoder.encode("abc321"))
+                .roles("CARD-OWNER")
+                .build();
+        return new InMemoryUserDetailsManager(sarah, hankNoCard, kumar);
     }
 
     @Bean
