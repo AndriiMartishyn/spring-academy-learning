@@ -2,8 +2,6 @@ package com.martishyn.familycashcard.controller;
 
 import com.martishyn.familycashcard.model.CashCard;
 import com.martishyn.familycashcard.repository.CashCardRepository;
-import jakarta.annotation.security.RolesAllowed;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +27,7 @@ public class CashCardController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getCashCardById(@PathVariable Long id, Principal principal) {
-        Optional<CashCard> foundCashCard = Optional.ofNullable(cashCardRepository.findByIdAndOwner(id, principal.getName()));
+        Optional<CashCard> foundCashCard = getCashCard(id, principal);
         if (foundCashCard.isPresent()) {
             return ResponseEntity.ok(foundCashCard.get());
         }
@@ -37,7 +35,7 @@ public class CashCardController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CashCard>> findAll(Pageable pageable, Principal principal){
+    public ResponseEntity<List<CashCard>> findAll(Pageable pageable, Principal principal) {
         Page<CashCard> page = cashCardRepository.findByOwner(
                 principal.getName(),
                 PageRequest.of(
@@ -59,6 +57,23 @@ public class CashCardController {
                 .buildAndExpand(savedEntity.getId())
                 .toUri();
         return ResponseEntity.created(locationOfNewCard).build();
+    }
 
+    @PutMapping("/{requestedId}")
+    public ResponseEntity<Void> putCashCard(@PathVariable Long requestedId,
+                                            @RequestBody CashCard cashCardUpdate,
+                                            Principal principal) {
+        Optional<CashCard> cashCard = getCashCard(requestedId, principal);
+        if (cashCard.isPresent()) {
+            CashCard updatedCashCard = new CashCard(cashCard.get().getId(),
+                    cashCardUpdate.getAmount(), principal.getName());
+            cashCardRepository.save(updatedCashCard);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    private Optional<CashCard> getCashCard(Long requestedId, Principal principal) {
+        return Optional.ofNullable(cashCardRepository.findByIdAndOwner(requestedId, principal.getName()));
     }
 }
