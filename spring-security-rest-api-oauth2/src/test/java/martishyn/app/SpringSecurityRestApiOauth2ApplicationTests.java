@@ -8,7 +8,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@WithMockUser
+@WithMockUser(username = "sarah1")
 class SpringSecurityRestApiOauth2ApplicationTests {
 
     @Autowired
@@ -39,8 +39,7 @@ class SpringSecurityRestApiOauth2ApplicationTests {
                         .contentType("application/json")
                         .content("""
                                 {
-                                    "amount": 250.00,
-                                    "owner": "sarah1"
+                                    "amount": 250.00
                                 }
                                 """))
                 .andExpect(status().isCreated())
@@ -57,9 +56,8 @@ class SpringSecurityRestApiOauth2ApplicationTests {
     void shouldReturnAllCashCardsWhenGetAll() throws Exception {
         mockMvc.perform(get("/cashcards"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("length()").value(3))
-                .andExpect(jsonPath("$..owner").value(hasItem("sarah1")))
-                .andExpect(jsonPath("$..owner").value(hasItem("esuez5")));
+                .andExpect(jsonPath("length()").value(2))
+                .andExpect(jsonPath("$..owner").value(everyItem(equalTo("sarah1"))));
 
     }
 

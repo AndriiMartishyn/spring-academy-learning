@@ -1,9 +1,12 @@
 package martishyn.app.controller;
 
 import lombok.RequiredArgsConstructor;
+import martishyn.app.annotation.CurrentOwner;
 import martishyn.app.model.CashCard;
 import martishyn.app.repository.CashCardRepository;
+import martishyn.app.request.CashCardRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -23,8 +26,13 @@ public class CashCardController {
     }
 
     @PostMapping
-    public ResponseEntity<CashCard> createCashCard(@RequestBody CashCard cashCard) {
-        CashCard savedCashCard = cashCardRepository.save(cashCard);
+    public ResponseEntity<CashCard> createCashCard(@RequestBody CashCardRequest cashCardRequest,
+                                                   @CurrentOwner String owner) {
+        CashCard newCashCard = CashCard.builder()
+                .amount(cashCardRequest.amount())
+                .owner(owner)
+                .build();
+        CashCard savedCashCard = cashCardRepository.save(newCashCard);
         URI locationOfNewCard = UriComponentsBuilder
                 .fromPath("/cashcards/{id}")
                 .buildAndExpand(savedCashCard.getId())
@@ -33,8 +41,10 @@ public class CashCardController {
     }
 
     @GetMapping
-    public ResponseEntity<Iterable<CashCard>> findAll() {
-        return ResponseEntity.ok(cashCardRepository.findAll());
+    public ResponseEntity<Iterable<CashCard>> findAll(@CurrentOwner String owner) {
+        return cashCardRepository.findAllOwnersCards(owner)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
 

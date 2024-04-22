@@ -2,9 +2,11 @@ package martishyn.app.model;
 
 
 import jakarta.persistence.*;
+import lombok.Builder;
 
 @Entity
 @Table(name = "cash_card")
+@Builder
 public class CashCard {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
