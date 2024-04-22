@@ -1,5 +1,6 @@
 package martishyn.app;
 
+import lombok.With;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -17,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@WithMockUser(username = "sarah1")
+@WithMockUser(username = "sarah1", authorities = {"SCOPE_cashcard:read"})
 class SpringSecurityRestApiOauth2ApplicationTests {
 
     @Autowired
@@ -31,6 +32,8 @@ class SpringSecurityRestApiOauth2ApplicationTests {
                 .andExpect(jsonPath("$.owner").value("sarah1"));
     }
 
+    @WithMockUser(username = "esuez5", authorities = {"SCOPE_cashcard:read",
+    "SCOPE_cashcard:write"})
     @Test
     @DirtiesContext
     void shouldCreateANewCashCard() throws Exception {
@@ -49,7 +52,7 @@ class SpringSecurityRestApiOauth2ApplicationTests {
         mockMvc.perform(get(responseLocation))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.amount").value(250.00))
-                .andExpect(jsonPath("$.owner").value("sarah1"));
+                .andExpect(jsonPath("$.owner").value("esuez5"));
     }
 
     @Test
