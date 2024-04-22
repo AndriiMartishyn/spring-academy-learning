@@ -6,7 +6,6 @@ import martishyn.app.model.CashCard;
 import martishyn.app.repository.CashCardRepository;
 import martishyn.app.request.CashCardRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -41,8 +40,8 @@ public class CashCardController {
     }
 
     @GetMapping
-    public ResponseEntity<Iterable<CashCard>> findAll(@CurrentOwner String owner) {
-        return cashCardRepository.findAllOwnersCards(owner)
+    public ResponseEntity<Iterable<CashCard>> findAll() {
+        return cashCardRepository.findAllCashCards()
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
