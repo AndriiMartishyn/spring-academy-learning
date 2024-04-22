@@ -52,8 +52,19 @@ public class SpringSecurityTests {
         String token = mint((claims) -> claims.audience(List.of("https://wrong")));
         this.mockMvc.perform(get("/cashcards/100")
                         .header("Authorization", "Bearer " + token))
-                        .andExpect(status().isUnauthorized())
-                        .andExpect(header().string("WWW-Authenticate", containsString("aud claim is not valid")));
+                .andExpect(status().isUnauthorized())
+                .andExpect(header().string("WWW-Authenticate", containsString("aud claim is not valid")));
+    }
+
+    @Test
+    void shouldNotAllowExpiredTokens() throws Exception {
+        String token = mint((claims) -> {
+            claims.issuedAt(Instant.now().minusSeconds(3600));
+            claims.expiresAt(Instant.now().minusSeconds(3599));
+        });
+        this.mockMvc.perform(get("/cashcards/100").header("Authorization", "Bearer " + token))
+                .andExpect(status().isUnauthorized())
+                .andExpect(header().string("WWW-Authenticate", containsString("Jwt expired")));
     }
 
 
