@@ -6,6 +6,7 @@ import martishyn.app.model.CashCard;
 import martishyn.app.repository.CashCardRepository;
 import martishyn.app.request.CashCardRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -18,6 +19,7 @@ public class CashCardController {
     private final CashCardRepository cashCardRepository;
 
     @GetMapping("/{requestedId}")
+    @PostAuthorize("returnObject.body.owner == authentication.name")
     public ResponseEntity<CashCard> findById(@PathVariable Long requestedId) {
         return cashCardRepository.findById(requestedId)
                 .map(ResponseEntity::ok)
