@@ -11,13 +11,10 @@ import java.util.Optional;
 
 public interface CashCardRepository extends CrudRepository<CashCard, Long> {
 
-    @Query("select c from CashCard as c where c.owner=:owner")
-    Optional<Iterable<CashCard>> findAllOwnersCards(String owner);
+    @Query("select c from CashCard as c where c.owner= :#{authentication.name}")
+    Optional<Iterable<CashCard>> findAllOwnersCards();
 
-    default Optional<Iterable<CashCard>> findAllCashCards(){
-        SecurityContext context = SecurityContextHolder.getContext();
-        Authentication authentication = context.getAuthentication();
-        String owner = authentication.getName();
-        return findAllOwnersCards(owner);
+    default Iterable<CashCard> findAll() {
+        throw new UnsupportedOperationException("unsupported, please use findAllOwnersCards instead");
     }
 }

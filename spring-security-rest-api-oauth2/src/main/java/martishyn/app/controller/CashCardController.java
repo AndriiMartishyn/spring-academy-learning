@@ -43,7 +43,7 @@ public class CashCardController {
 
     @GetMapping
     public ResponseEntity<Iterable<CashCard>> findAll() {
-        return cashCardRepository.findAllCashCards()
+        return cashCardRepository.findAllOwnersCards()
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
